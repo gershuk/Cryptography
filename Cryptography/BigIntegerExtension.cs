@@ -67,7 +67,7 @@ namespace Cryptography
             }
 
             BigInteger sqrt = number.Sqrt();
-            for (int i = 3; i <= sqrt; ++i)
+            for (BigInteger i = 3; i <= sqrt; ++i)
             {
                 if (number % i == 0)
                 {
