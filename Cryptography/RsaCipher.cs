@@ -62,7 +62,7 @@ namespace Cryptography
             //    }
             //}
 
-            return BigIntegerExtension.GetRandom(m.GetByteCount());
+            return BigIntegerExtension.GetRandomPrime(m.GetByteCount(), (b) => b.SolovayStrassenTest(1000));
         }
 
         private static BigInteger CalcE(BigInteger d, BigInteger m)

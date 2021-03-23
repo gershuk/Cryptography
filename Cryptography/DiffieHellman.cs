@@ -2,14 +2,22 @@
 
 namespace Cryptography
 {
-    internal static class DiffieHellman
+    public class DiffieHellman
     {
-        public static void MakeTest(BigInteger a, BigInteger b, BigInteger g, BigInteger p)
+        private readonly BigInteger _a;
+        public BigInteger _k;
+        private readonly BigInteger _p;
+
+        public BigInteger A { get; }
+
+        public void SetB(BigInteger b)
         {
-            BigInteger A = g.FastPowModulo(a, p);
-            BigInteger B = g.FastPowModulo(b, p);
-            BigInteger K1 = B.FastPowModulo(a, p);
-            BigInteger K2 = A.FastPowModulo(b, p);
+            _k = BigInteger.ModPow(b, _a, _p);
+        }
+
+        public DiffieHellman(BigInteger a, BigInteger g, BigInteger p)
+        {
+            (_a, A, _p) = (a, BigInteger.ModPow(g, a, p), p);
         }
     }
 }

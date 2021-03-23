@@ -1,11 +1,60 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using System.Security.Cryptography;
+using System.Threading.Tasks;
 
 namespace Cryptography
 {
     public static class BigIntegerExtension
     {
+
+        public static BigInteger GetRandom(int count)
+        {
+            Random random = new();
+            RNGCryptoServiceProvider rng = new();
+            byte[] bytes = new byte[count];
+            bytes[^1] = (byte)random.Next(1, 255);
+            rng.GetBytes(bytes, 0, bytes.Length - 1);
+            bytes[^1] &= 0x7F;
+            return new BigInteger(bytes);
+        }
+
+        public static BigInteger GetGroupGenerator(BigInteger p)
+        {
+            List<BigInteger> fact = new();
+            BigInteger phi = p - 1;
+            BigInteger n = phi;
+
+            if (!n.SolovayStrassenTest(1000))
+            {
+                for (BigInteger i = 2; i * i <= n; ++i)
+                {
+
+                    if (n % i == 0)
+                    {
+                        fact.Add(i);
+                        while (n % i == 0)
+                            n /= i;
+                        if (n.SolovayStrassenTest(1000))
+                            break;
+                    }
+                }
+            }
+
+            if (n > 1)
+                fact.Add(n);
+
+            for (BigInteger res = 2; res <= p; ++res)
+            {
+                var isGen = true;
+                for (var i = 0; i < fact.Count && isGen; ++i)
+                    isGen &= BigInteger.ModPow(res, phi / fact[i], p) != 1;
+                if (isGen) return res;
+            }
+            return -1;
+        }
+
         public static BigInteger FastPowModulo(this BigInteger x, BigInteger n, BigInteger modulo)
         {
             BigInteger count = 1;
@@ -94,6 +143,14 @@ namespace Cryptography
             BigInteger d = n - 1;
             long s = 0;
 
+            for (int i = 5; i <= 17; ++i)
+            {
+                if (n % i == 0)
+                {
+                    return false;
+                }
+            }
+
             while (d % 2 == 0)
             {
                 d /= 2;
@@ -170,7 +227,7 @@ namespace Cryptography
             return n >= lowerBound && n < upperBound;
         }
 
-        public static BigInteger GetRandom(int bytesCount)
+        public static BigInteger GetRandomPrime(int bytesCount, Predicate<BigInteger> predicate)
         {
             Random random = new();
             RNGCryptoServiceProvider rng = new();
@@ -178,13 +235,13 @@ namespace Cryptography
             bytes[^1] = (byte)random.Next(1, 255);
             rng.GetBytes(bytes, 0, bytes.Length - 1);
             bytes[^1] &= 0x7F;
-            BigInteger number = new BigInteger(bytes);
+            BigInteger number = new(bytes);
             if (number.IsEven)
             {
                 number++;
             }
 
-            while (!number.SolovayStrassenTest(1000))
+            while (!predicate(number))
             {
                 number += 2;
             }

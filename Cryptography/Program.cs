@@ -2,28 +2,28 @@
 
 using System;
 using System.Numerics;
-using System.Security.Cryptography;
 
-Random random = new();
-RNGCryptoServiceProvider rng = new();
+//Console.WriteLine("Введите число байт на ключи");
 
-Console.WriteLine("Введите число байт на ключи");
-var count = Convert.ToInt32(Console.ReadLine());
+//var first = BigIntegerExtension.GetRandom(Convert.ToInt32(Console.ReadLine()));
+//if (first.IsEven) first++;
 
-var bytes = new byte[count];
-bytes[^1] = (byte)random.Next(1, 255);
-rng.GetBytes(bytes, 0, bytes.Length - 1);
-bytes[^1] &= 0x7F;
-var first = new BigInteger(bytes);
-if (first.IsEven) first++;
+//while (!first.SolovayStrassenTest(1000))
+//    first += 2;
 
-while (!first.SolovayStrassenTest(1000))
-    first += 2;
+//var second = first + 2;
 
-var second = first + 2;
+//while (!second.SolovayStrassenTest(1000))
+//    second += 2;
 
-while (!second.SolovayStrassenTest(1000))
-    second += 2;
+//(var d, var n) = RsaCipher.MakeEncryptFile(first, second, "input.txt", "output.txt");
+//RsaCipher.MakeDecipherFile(d, n, "output.txt", "test.txt");
 
-(var d, var n) = RsaCipher.MakeEncryptFile(first, second, "input.txt", "output.txt");
-RsaCipher.MakeDecipherFile(d, n, "output.txt", "test.txt");
+
+var p = BigIntegerExtension.GetRandomPrime(16, (b) => b.SolovayStrassenTest(1000));
+var generator = BigIntegerExtension.GetGroupGenerator(p);
+DiffieHellman d1 = new(BigIntegerExtension.GetRandom(4), generator, p);
+DiffieHellman d2 = new(BigIntegerExtension.GetRandom(4), generator, p);
+d1.SetB(d2.A);
+d2.SetB(d1.A);
+var y = d1._k == d2._k;
