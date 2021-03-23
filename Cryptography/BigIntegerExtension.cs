@@ -8,6 +8,16 @@ namespace Cryptography
 {
     public static class BigIntegerExtension
     {
+        public static (BigInteger gcd, BigInteger x, BigInteger y) FindGcd(BigInteger a, BigInteger b)
+        {
+            if (a == 0)
+            {
+                return (b, 0, 1);
+            }
+
+            (BigInteger d, BigInteger x1, BigInteger y1) = FindGcd(b % a, a);
+            return (d, y1 - (b / a) * x1, x1);
+        }
 
         public static BigInteger GetRandom(int count)
         {

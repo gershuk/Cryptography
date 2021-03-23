@@ -7,17 +7,6 @@ namespace Cryptography
 {
     internal static class RsaCipher
     {
-        private static (BigInteger gcd, BigInteger x, BigInteger y) FindGcd(BigInteger a, BigInteger b)
-        {
-            if (a == 0)
-            {
-                return (b, 0, 1);
-            }
-
-            (BigInteger d, BigInteger x1, BigInteger y1) = FindGcd(b % a, a);
-            return (d, y1 - (b / a) * x1, x1);
-        }
-
         public static (BigInteger d, BigInteger n) MakeEncryptFile(BigInteger p, BigInteger q, string pathIn, string pathOut)
         {
             checked
@@ -67,7 +56,7 @@ namespace Cryptography
 
         private static BigInteger CalcE(BigInteger d, BigInteger m)
         {
-            (BigInteger _, BigInteger e, BigInteger _) = FindGcd(d, m);
+            (BigInteger _, BigInteger e, BigInteger _) = BigIntegerExtension.FindGcd(d, m);
             return e > 0 ? e : e + m;
         }
 

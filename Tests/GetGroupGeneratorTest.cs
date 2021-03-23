@@ -15,8 +15,8 @@ namespace Tests
         [TestInitialize]
         public void Init()
         {
-            const int bytesCount = 8;
-            const int primCount = 100;
+            const int bytesCount = 10;
+            const int primCount = 10;
 
             numbers = new(primCount);
 
