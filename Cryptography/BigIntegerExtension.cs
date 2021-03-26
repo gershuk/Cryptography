@@ -2,70 +2,76 @@
 using System.Collections.Generic;
 using System.Numerics;
 using System.Security.Cryptography;
-using System.Threading.Tasks;
 
 namespace Cryptography
 {
     public static class BigIntegerExtension
     {
-        public static (BigInteger gcd, BigInteger x, BigInteger y) FindGcd(BigInteger a, BigInteger b)
+        public static (BigInteger gcd, BigInteger x, BigInteger y) FindGcd (BigInteger a, BigInteger b)
         {
             if (a == 0)
             {
                 return (b, 0, 1);
             }
 
-            (BigInteger d, BigInteger x1, BigInteger y1) = FindGcd(b % a, a);
+            (var d, var x1, var y1) = FindGcd(b % a, a);
             return (d, y1 - (b / a) * x1, x1);
         }
 
-        public static BigInteger GetRandom(int count)
+        public static BigInteger GetRandom (int count)
         {
             Random random = new();
             RNGCryptoServiceProvider rng = new();
-            byte[] bytes = new byte[count];
-            bytes[^1] = (byte)random.Next(1, 255);
+            var bytes = new byte[count];
+            bytes[^1] = (byte) random.Next(1, 255);
             rng.GetBytes(bytes, 0, bytes.Length - 1);
             bytes[^1] &= 0x7F;
             return new BigInteger(bytes);
         }
 
-        public static BigInteger GetGroupGenerator(BigInteger p)
+        public static BigInteger GetGroupGenerator (BigInteger p)
         {
             List<BigInteger> fact = new();
-            BigInteger phi = p - 1;
-            BigInteger n = phi;
+            var phi = p - 1;
+            var n = phi;
 
             if (!n.SolovayStrassenTest(1000))
             {
                 for (BigInteger i = 2; i * i <= n; ++i)
                 {
-
                     if (n % i == 0)
                     {
                         fact.Add(i);
                         while (n % i == 0)
+                        {
                             n /= i;
+                        }
+
                         if (n.SolovayStrassenTest(1000))
+                        {
                             break;
+                        }
                     }
                 }
             }
 
             if (n > 1)
+            {
                 fact.Add(n);
+            }
 
             for (BigInteger res = 2; res <= p; ++res)
             {
                 var isGen = true;
                 for (var i = 0; i < fact.Count && isGen; ++i)
                     isGen &= BigInteger.ModPow(res, phi / fact[i], p) != 1;
-                if (isGen) return res;
+                if (isGen)
+                    return res;
             }
             return -1;
         }
 
-        public static BigInteger FastPowModulo(this BigInteger x, BigInteger n, BigInteger modulo)
+        public static BigInteger FastPowModulo (this BigInteger x, BigInteger n, BigInteger modulo)
         {
             BigInteger count = 1;
             if (n == 0)
@@ -89,7 +95,7 @@ namespace Cryptography
             return count;
         }
 
-        public static BigInteger Sqrt(this BigInteger n)
+        public static BigInteger Sqrt (this BigInteger n)
         {
             if (n == 0)
             {
@@ -98,8 +104,8 @@ namespace Cryptography
 
             if (n > 0)
             {
-                int bitLength = Convert.ToInt32(Math.Ceiling(BigInteger.Log(n, 2)));
-                BigInteger root = BigInteger.One << (bitLength / 2);
+                var bitLength = Convert.ToInt32(Math.Ceiling(BigInteger.Log(n, 2)));
+                var root = BigInteger.One << (bitLength / 2);
 
                 while (!n.IsSqrt(root))
                 {
@@ -113,7 +119,7 @@ namespace Cryptography
             throw new ArithmeticException("NaN");
         }
 
-        public static bool IsPrime(this BigInteger number)
+        public static bool IsPrime (this BigInteger number)
         {
             if (number <= 1 || number % 2 == 0)
             {
@@ -125,7 +131,7 @@ namespace Cryptography
                 return true;
             }
 
-            BigInteger sqrt = number.Sqrt();
+            var sqrt = number.Sqrt();
             for (BigInteger i = 3; i <= sqrt; ++i)
             {
                 if (number % i == 0)
@@ -137,9 +143,9 @@ namespace Cryptography
             return true;
         }
 
-        public static bool MillerRabinTest(this BigInteger n, long r)
+        public static bool MillerRabinTest (this BigInteger n, long r)
         {
-            BigInteger nn = n - 1;
+            var nn = n - 1;
             if (n == 2 || n == 3)
             {
                 return true;
@@ -150,10 +156,10 @@ namespace Cryptography
                 return false;
             }
 
-            BigInteger d = n - 1;
+            var d = n - 1;
             long s = 0;
 
-            for (int i = 5; i <= 17; ++i)
+            for (var i = 5; i <= 17; ++i)
             {
                 if (n % i == 0)
                 {
@@ -170,7 +176,7 @@ namespace Cryptography
             BigInteger first;
             BigInteger second;
 
-            for (long tryCount = 2L; tryCount < r + 1; tryCount++)
+            for (var tryCount = 2L; tryCount < r + 1; tryCount++)
             {
                 first = BigInteger.ModPow(tryCount, d, n);
                 if (first >= 1 && first <= nn)
@@ -178,8 +184,8 @@ namespace Cryptography
                     continue;
                 }
 
-                bool notFinded = true;
-                for (long i = 1L; tryCount <= s; i++)
+                var notFinded = true;
+                for (var i = 1L; tryCount <= s; i++)
                 {
                     second = BigInteger.ModPow(first, 2, n);
                     if (second == nn)
@@ -200,21 +206,21 @@ namespace Cryptography
             return true;
         }
 
-        public static bool SolovayStrassenTest(this BigInteger n, int k)
+        public static bool SolovayStrassenTest (this BigInteger n, int k)
         {
             RNGCryptoServiceProvider rng = new();
-            byte[] array = new byte[n.GetByteCount()];
-            for (int i = 0; i < k; i++)
+            var array = new byte[n.GetByteCount()];
+            for (var i = 0; i < k; i++)
             {
                 rng.GetBytes(array);
                 array[^1] &= 0x7F; //force sign bit to positive
-                BigInteger a = new BigInteger(array) % n;
+                var a = new BigInteger(array) % n;
                 if (a == 0)
                 {
                     a = 1;
                 }
 
-                BigInteger jacabi = JacabiChar.Calc(a, n);
+                var jacabi = JacabiChar.Calc(a, n);
                 if (jacabi.Sign == -1)
                 {
                     jacabi = n + jacabi;
@@ -229,20 +235,20 @@ namespace Cryptography
             return true;
         }
 
-        private static bool IsSqrt(this BigInteger n, BigInteger root)
+        private static bool IsSqrt (this BigInteger n, BigInteger root)
         {
-            BigInteger lowerBound = root * root;
-            BigInteger upperBound = (root + 1) * (root + 1);
+            var lowerBound = root * root;
+            var upperBound = (root + 1) * (root + 1);
 
             return n >= lowerBound && n < upperBound;
         }
 
-        public static BigInteger GetRandomPrime(int bytesCount, Predicate<BigInteger> predicate)
+        public static BigInteger GetRandomPrime (int bytesCount, Predicate<BigInteger> predicate)
         {
             Random random = new();
             RNGCryptoServiceProvider rng = new();
-            byte[] bytes = new byte[bytesCount];
-            bytes[^1] = (byte)random.Next(1, 255);
+            var bytes = new byte[bytesCount];
+            bytes[^1] = (byte) random.Next(1, 255);
             rng.GetBytes(bytes, 0, bytes.Length - 1);
             bytes[^1] &= 0x7F;
             BigInteger number = new(bytes);

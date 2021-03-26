@@ -4,7 +4,7 @@ namespace Cryptography
 {
     public static class JacabiChar
     {
-        public static BigInteger Calc(BigInteger a, BigInteger b)
+        public static BigInteger Calc (BigInteger a, BigInteger b)
         {
             if (BigInteger.GreatestCommonDivisor(a, b) != 1)
             {
@@ -12,7 +12,7 @@ namespace Cryptography
             }
             else
             {
-                int r = 1;
+                var r = 1;
                 if (a < 0)
                 {
                     a = -a;
@@ -23,7 +23,7 @@ namespace Cryptography
                 }
                 do
                 {
-                    int t = 0;
+                    var t = 0;
                     while (a % 2 == 0)
                     {
                         t++;
@@ -39,7 +39,7 @@ namespace Cryptography
                         r = -r;
                     }
 
-                    BigInteger c = a;
+                    var c = a;
                     a = b % c;
                     b = c;
                 } while (a != 0);
